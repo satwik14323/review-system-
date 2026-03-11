@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Review System</title>
+
+<style>
+body{
+font-family: Arial;
+text-align:center;
+margin:40px;
+}
+
+input, textarea{
+width:250px;
+padding:8px;
+margin:6px;
+}
+
+button{
+padding:8px 15px;
+background:#007BFF;
+color:white;
+border:none;
+cursor:pointer;
+margin:5px;
+}
+
+.star{
+font-size:25px;
+cursor:pointer;
+color:gray;
+}
+
+.star.selected{
+color:gold;
+}
+
+.review-box{
+border:1px solid #ccc;
+padding:10px;
+margin:10px auto;
+width:320px;
+text-align:left;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Leave a Review ⭐</h2>
+
+<input id="name" placeholder="Your Name"><br>
+
+<div id="stars">
+<span class="star" onclick="rate(1)">★</span>
+<span class="star" onclick="rate(2)">★</span>
+<span class="star" onclick="rate(3)">★</span>
+<span class="star" onclick="rate(4)">★</span>
+<span class="star" onclick="rate(5)">★</span>
+</div>
+
+<textarea id="review" placeholder="Write your review"></textarea><br>
+
+<button onclick="addReview()">Submit Review</button>
+
+<br><br>
+
+<button onclick="openAdmin()">Admin Panel</button>
+
+<h3>Public Reviews</h3>
+
+<div id="reviews"></div>
+
+<script>
+
+let rating = 0;
+
+function rate(num){
+rating = num;
+
+let stars = document.querySelectorAll(".star");
+
+stars.forEach((s,i)=>{
+s.classList.remove("selected");
+if(i < num){
+s.classList.add("selected");
+}
+});
+}
+
+function addReview(){
+
+let name = document.getElementById("name").value;
+let review = document.getElementById("review").value;
+
+if(name=="" || review=="" || rating==0){
+alert("Fill all fields and select rating");
+return;
+}
+
+let data = JSON.parse(localStorage.getItem("reviews")) || [];
+
+data.push({
+name:name,
+review:review,
+rating:rating
+});
+
+localStorage.setItem("reviews", JSON.stringify(data));
+
+showReviews();
+
+document.getElementById("name").value="";
+document.getElementById("review").value="";
+rating=0;
+
+document.querySelectorAll(".star").forEach(s=>s.classList.remove("selected"));
+}
+
+function showReviews(){
+
+let data = JSON.parse(localStorage.getItem("reviews")) || [];
+
+let container = document.getElementById("reviews");
+container.innerHTML="";
+
+data.forEach(r=>{
+
+let stars = "★".repeat(r.rating);
+
+let div = document.createElement("div");
+div.className="review-box";
+
+div.innerHTML="<b>"+r.name+"</b><br>"+stars+"<p>"+r.review+"</p>";
+
+container.appendChild(div);
+
+});
+
+}
+
+function openAdmin(){
+
+let password = prompt("Enter admin password");
+
+if(password !== "admin123"){
+alert("Wrong password");
+return;
+}
+
+let data = JSON.parse(localStorage.getItem("reviews")) || [];
+
+let adminWindow = window.open("", "Admin Reviews");
+
+adminWindow.document.write("<h2>Admin Review Panel</h2>");
+
+data.forEach(r=>{
+adminWindow.document.write(
+"<p><b>"+r.name+"</b> - "+r.rating+"★<br>"+r.review+"</p><hr>"
+);
+});
+
+}
+
+showReviews();
+
+</script>
+
+</body>
+</html>
